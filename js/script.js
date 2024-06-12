@@ -1,6 +1,8 @@
 const container = document.querySelector('.container');
 const optionList = document.querySelector('#options');
 const listOfChoices = document.querySelectorAll('#options>li');
+const msgBox = document.querySelector('.msg');
+const scoreP = document.querySelector('.score');
 
 //Storing text values for comparison, no need to check spelling errors.
 const PAPER = listOfChoices.item(0).textContent;
@@ -26,26 +28,41 @@ function getHumanChoice(textContent) {
     playRound(humanChoice, getComputerChoice());
 }
 
-function showWinner(message) {
-    let msgBox = document.querySelector('.msg');
+function showRoundWinner(humanScore, computerScore, message) {
+    scoreP.textContent = `You: ${humanScore} | Computer: ${computerScore}`;
+    if (humanScore == 5 || computerScore == 5) {
+        scoreP.textContent = '';
+        if (humanScore > computerScore) {
+            message += `Final Score : ${humanScore} to ${computerScore}, you win!`;
+        } else {
+            message += `Final Score : ${humanScore} to ${computerScore}, you lose!`;
+        }
+        resetGame();
+    }
+
     msgBox.textContent = message;
 }
 
-function getFinalScore(humanScore, computerScore) {
-    let msg = '';
-    if (humanScore > computerScore) {
-        msg = `Congrats! You beat the computer ${humanScore} to ${computerScore}`;
-    } else {
-        msg = `Aw shoot! You lost to the computer ${humanScore} to ${computerScore}`;
-    }
+function resetGame() {
+    const playButton = document.createElement('button');
+    playButton.textContent = 'Play Again?';
+    playButton.addEventListener('click', () => {
+        //reset stuff
+        humanScore = 0;
+        computerScore = 0;
+        container.removeChild(playButton);
+        msgBox.textContent = '';
+    });
 
-    showWinner(msg);
+    container.appendChild(playButton);
 }
 
 function playRound(humanSelection, computerSelection) {
     let msg = '';
     let humanChoice = humanSelection;
     let computerChoice = computerSelection;
+
+    // let lastRound = ;
     const tieCondition = (humanChoice === computerChoice);
     const humanWinCondition = (
         (humanChoice === PAPER && computerChoice === ROCK) ||
@@ -54,18 +71,14 @@ function playRound(humanSelection, computerSelection) {
     );
 
     if (tieCondition) {
-        msg = `It's a tie, you both selected ${humanChoice}`;
+        msg = `It's a tie, you both selected ${humanChoice}. `;
     } else if (humanWinCondition) {
-        msg = `You win! ${humanChoice} beats ${computerChoice}`;
+        msg = `You win! ${humanChoice} beats ${computerChoice}. `;
         humanScore++;
     } else {
-        msg = `You lose! ${humanChoice} loses to ${computerChoice}`;
+        msg = `You lose! ${humanChoice} loses to ${computerChoice}. `;
         computerScore++;
     }
 
-    if (humanScore == 5 || computerScore == 5) {
-        getFinalScore(humanScore, computerScore);
-    } else {
-        showWinner(msg);
-    }
+    showRoundWinner(humanScore, computerScore, msg);
 }
